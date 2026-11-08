@@ -113,7 +113,7 @@ fn main() {
             let mut db = load_db(&db_path);
             let date_key = today.format("%Y-%m-%d").to_string();
 
-            let mut stats = db.entry(date_key).or_insert_with(DayStats::default);
+            let stats = db.entry(date_key).or_insert_with(DayStats::default);
             stats.commits_count += 1;
             match mood {
                 Mood::Positive => stats.positive += 1,
@@ -130,11 +130,11 @@ fn main() {
 
             // Print feedback to the developer during their git workflow!
             let colored_mood = match mood {
-                Mood::Positive => "Positive (Turquoise) 🚀".cyan().bold(),
-                Mood::Negative => "Stressed / Negative (Red) ⚠️".red().bold(),
-                Mood::Neutral => "Steady / Neutral (Green) 🟩".green().bold(),
-                Mood::Refactor => "Refactor / Cleanup (Yellow) 🟨".yellow().bold(),
-                Mood::Weekend => "Weekend Coding (Purple) 🟪".magenta().bold(),
+                Mood::Positive => "Positive (Turquoise)".cyan().bold(),
+                Mood::Negative => "Stressed / Negative (Red)".red().bold(),
+                Mood::Neutral => "Steady / Neutral (Green)".green().bold(),
+                Mood::Refactor => "Refactor / Cleanup (Yellow)".yellow().bold(),
+                Mood::Weekend => "Weekend Coding (Purple)".magenta().bold(),
             };
 
             println!();

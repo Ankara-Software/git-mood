@@ -4,7 +4,8 @@ version = "0.1.4"
 edition = "2021"
 description = "Color your GitHub contribution graph with the mood of your git commits"
 license = "MIT"
-repository = "https://github.com/anilcan-kara/git-mood"
+repository = "https://github.com/Ankara-Software/git-mood"
+homepage = "https://ankarayazilim.org/acik-kaynak/git-mood"
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
