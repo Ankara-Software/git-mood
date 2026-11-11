@@ -9,29 +9,47 @@ permissions:
   contents: write
 
 jobs:
+  tickets:
+    name: Artifact Tickets
+    runs-on: [self-hosted, s31]
+    outputs:
+      tickets: ${{ steps.t.outputs.tickets }}
+    steps:
+      - id: t
+        uses: Ankara-Software/ci-actions/artifact-ticket@v1
+        with:
+          names: git-mood-linux-x64 git-mood-linux-arm64 git-mood-darwin-x64 git-mood-darwin-arm64 git-mood-win32-x64.exe
+          hours: "6"
+
   build:
     name: Build - ${{ matrix.target }}
-    runs-on: ${{ matrix.os }}
+    needs: tickets
+    runs-on: ${{ fromJSON(matrix.runner) }}
     strategy:
       matrix:
         include:
-          - os: ubuntu-latest
+          - os: linux
+            runner: '["self-hosted","s31"]'
             target: x86_64-unknown-linux-gnu
             asset_name: git-mood-linux-x64
             use_cross: false
-          - os: ubuntu-latest
+          - os: linux
+            runner: '["self-hosted","s31"]'
             target: aarch64-unknown-linux-gnu
             asset_name: git-mood-linux-arm64
             use_cross: true
-          - os: macos-latest
+          - os: macos
+            runner: '["self-hosted","macOS","s11"]'
             target: x86_64-apple-darwin
             asset_name: git-mood-darwin-x64
             use_cross: false
-          - os: macos-latest
+          - os: macos
+            runner: '["self-hosted","macOS","s11"]'
             target: aarch64-apple-darwin
             asset_name: git-mood-darwin-arm64
             use_cross: false
-          - os: windows-latest
+          - os: windows
+            runner: '["self-hosted","Windows","s18"]'
             target: x86_64-pc-windows-msvc
             asset_name: git-mood-win32-x64.exe
             use_cross: false
@@ -58,33 +76,59 @@ jobs:
         run: cross build --target ${{ matrix.target }} --release
 
       - name: Prepare asset (Windows)
-        if: matrix.os == 'windows-latest'
+        if: matrix.os == 'windows'
         run: |
           mv target\${{ matrix.target }}\release\git-mood.exe ${{ matrix.asset_name }}
 
       - name: Prepare asset (Unix)
-        if: matrix.os != 'windows-latest'
+        if: matrix.os != 'windows'
         run: |
           mv target/${{ matrix.target }}/release/git-mood ${{ matrix.asset_name }}
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+        uses: Ankara-Software/ci-actions/artifact-upload@v1
         with:
           name: ${{ matrix.asset_name }}
           path: ${{ matrix.asset_name }}
+          ticket: ${{ toJSON(fromJSON(needs.tickets.outputs.tickets)[matrix.asset_name]) }}
 
   release:
     name: Create GitHub Release
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, s31]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download all build artifacts
-        uses: actions/download-artifact@v4
+      - name: Download git-mood-linux-x64
+        uses: Ankara-Software/ci-actions/artifact-download@v1
         with:
-          path: ./artifacts
+          name: git-mood-linux-x64
+          path: ./artifacts/git-mood-linux-x64
+
+      - name: Download git-mood-linux-arm64
+        uses: Ankara-Software/ci-actions/artifact-download@v1
+        with:
+          name: git-mood-linux-arm64
+          path: ./artifacts/git-mood-linux-arm64
+
+      - name: Download git-mood-darwin-x64
+        uses: Ankara-Software/ci-actions/artifact-download@v1
+        with:
+          name: git-mood-darwin-x64
+          path: ./artifacts/git-mood-darwin-x64
+
+      - name: Download git-mood-darwin-arm64
+        uses: Ankara-Software/ci-actions/artifact-download@v1
+        with:
+          name: git-mood-darwin-arm64
+          path: ./artifacts/git-mood-darwin-arm64
+
+      - name: Download git-mood-win32-x64.exe
+        uses: Ankara-Software/ci-actions/artifact-download@v1
+        with:
+          name: git-mood-win32-x64.exe
+          path: ./artifacts/git-mood-win32-x64.exe
 
       - name: Flatten artifacts directory
         run: |
