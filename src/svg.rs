@@ -1,7 +1,7 @@
-use std::collections::HashMap;
-use chrono::{Duration, Local, Datelike};
-use serde::{Deserialize, Serialize};
 use crate::sentiment::Mood;
+use chrono::{Datelike, Duration, Local};
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct DayStats {
@@ -47,7 +47,7 @@ impl DayStats {
 pub fn generate_svg(log_data: &HashMap<String, DayStats>) -> String {
     let today = Local::now().date_naive();
     let weekday = today.weekday().num_days_from_sunday() as i64; // Sunday = 0, Saturday = 6
-    
+
     // Find Sunday of 52 weeks ago
     let start_date = today - Duration::days(weekday + 52 * 7);
 
@@ -58,14 +58,14 @@ pub fn generate_svg(log_data: &HashMap<String, DayStats>) -> String {
 
     let mut grid_svg = String::new();
     let mut current_date = start_date;
-    
+
     let mut total_commits = 0;
     let mut mood_counts = HashMap::new();
 
     // Iterate through all days from start_date to today
     while current_date <= today {
         let date_str = current_date.format("%Y-%m-%d").to_string();
-        
+
         let stats = log_data.get(&date_str);
         let mood = stats.and_then(|s| {
             total_commits += s.commits_count;

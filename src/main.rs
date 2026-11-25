@@ -1,15 +1,15 @@
-mod sentiment;
 mod hook;
+mod sentiment;
 mod svg;
 
+use chrono::{Datelike, Local};
+use colored::Colorize;
+use sentiment::Mood;
 use std::collections::HashMap;
 use std::env;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
-use chrono::{Local, Datelike};
-use colored::Colorize;
-use sentiment::Mood;
 use svg::DayStats;
 
 fn get_log_path() -> PathBuf {
@@ -59,9 +59,18 @@ fn get_diff_stats() -> (usize, usize) {
 }
 
 fn print_help() {
-    println!("{}", "==============================================".cyan());
-    println!("        {} - GitHub Graph Colorizer", "git-mood".green().bold());
-    println!("{}", "==============================================".cyan());
+    println!(
+        "{}",
+        "==============================================".cyan()
+    );
+    println!(
+        "        {} - GitHub Graph Colorizer",
+        "git-mood".green().bold()
+    );
+    println!(
+        "{}",
+        "==============================================".cyan()
+    );
     println!("Usage:");
     println!("  git-mood init           Install git hook in the current repository");
     println!("  git-mood status         Display terminal dashboard of your moods");
@@ -69,7 +78,10 @@ fn print_help() {
     println!();
     println!("Hook Command (Internal):");
     println!("  git-mood commit-hook <file>  Analyze commit message file");
-    println!("{}", "==============================================".cyan());
+    println!(
+        "{}",
+        "==============================================".cyan()
+    );
 }
 
 fn main() {
@@ -113,7 +125,7 @@ fn main() {
             let mut db = load_db(&db_path);
             let date_key = today.format("%Y-%m-%d").to_string();
 
-            let stats = db.entry(date_key).or_insert_with(DayStats::default);
+            let stats = db.entry(date_key).or_default();
             stats.commits_count += 1;
             match mood {
                 Mood::Positive => stats.positive += 1,
@@ -169,12 +181,20 @@ fn main() {
                             Mood::Refactor => "■".yellow(),
                             Mood::Weekend => "■".magenta(),
                         };
-                        println!("  {} ({}): {} [{} commits]", day_name, date_str, block, stats.commits_count);
+                        println!(
+                            "  {} ({}): {} [{} commits]",
+                            day_name, date_str, block, stats.commits_count
+                        );
                         continue;
                     }
                 }
                 // If no commits
-                println!("  {} ({}): {} [0 commits]", day_name, date_str, "■".truecolor(80, 80, 80));
+                println!(
+                    "  {} ({}): {} [0 commits]",
+                    day_name,
+                    date_str,
+                    "■".truecolor(80, 80, 80)
+                );
             }
 
             // Dominant overall mood breakdown
@@ -222,44 +242,57 @@ fn main() {
 
             // Check if git repository to perform auto-commit/push
             if Path::new(".git").exists() {
-                println!("{} Detected local git repository. Committing and pushing SVG...", "[git-mood]".green());
-                
+                println!(
+                    "{} Detected local git repository. Committing and pushing SVG...",
+                    "[git-mood]".green()
+                );
+
                 // git add
-                let add_status = Command::new("git")
-                    .args(["add", svg_filename])
-                    .status();
+                let add_status = Command::new("git").args(["add", svg_filename]).status();
 
                 if let Ok(status) = add_status {
                     if status.success() {
                         // git commit
                         let commit_status = Command::new("git")
-                            .args(["commit", "-m", "docs: update git-mood contribution graph [skip ci]", "--no-verify"])
+                            .args([
+                                "commit",
+                                "-m",
+                                "docs: update git-mood contribution graph [skip ci]",
+                                "--no-verify",
+                            ])
                             .status();
 
                         if let Ok(c_status) = commit_status {
                             if c_status.success() {
                                 println!("{} Committed changes.", "[git-mood]".green());
-                                
+
                                 // git push
-                                let push_status = Command::new("git")
-                                    .args(["push"])
-                                    .status();
+                                let push_status = Command::new("git").args(["push"]).status();
 
                                 if let Ok(p_status) = push_status {
                                     if p_status.success() {
-                                        println!("{} Successfully pushed to remote!", "[git-mood]".green());
+                                        println!(
+                                            "{} Successfully pushed to remote!",
+                                            "[git-mood]".green()
+                                        );
                                     } else {
                                         println!("{} Push failed. You may need to run 'git push' manually.", "[git-mood]".yellow());
                                     }
                                 }
                             } else {
-                                println!("{} No new changes to commit or commit failed.", "[git-mood]".yellow());
+                                println!(
+                                    "{} No new changes to commit or commit failed.",
+                                    "[git-mood]".yellow()
+                                );
                             }
                         }
                     }
                 }
             } else {
-                println!("{} Not a git repository or no .git folder found locally. Skipping git push.", "[git-mood]".yellow());
+                println!(
+                    "{} Not a git repository or no .git folder found locally. Skipping git push.",
+                    "[git-mood]".yellow()
+                );
             }
         }
         _ => {

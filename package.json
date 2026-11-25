@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/anilcan-kara/git-mood.git"
+    "url": "git+https://github.com/Ankara-Software/git-mood.git"
   },
   "keywords": [
     "git",
@@ -23,9 +23,9 @@
   "author": "Anilcan Kara",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/anilcan-kara/git-mood/issues"
+    "url": "https://github.com/Ankara-Software/git-mood/issues"
   },
-  "homepage": "https://github.com/anilcan-kara/git-mood#readme",
+  "homepage": "https://github.com/Ankara-Software/git-mood#readme",
   "engines": {
     "node": ">=14"
   }
