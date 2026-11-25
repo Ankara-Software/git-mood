@@ -1,5 +1,5 @@
-use std::fmt;
 use serde::{Deserialize, Serialize};
+use std::fmt;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Mood {
@@ -21,18 +21,7 @@ impl Mood {
         }
     }
 
-    pub fn from_str(s: &str) -> Option<Self> {
-        match s.to_lowercase().as_str() {
-            "positive" => Some(Mood::Positive),
-            "negative" => Some(Mood::Negative),
-            "neutral" => Some(Mood::Neutral),
-            "refactor" => Some(Mood::Refactor),
-            "weekend" => Some(Mood::Weekend),
-            _ => None,
-        }
-    }
-
-    pub fn to_color_code(&self) -> &'static str {
+    pub fn to_color_code(self) -> &'static str {
         match self {
             Mood::Positive => "#00f2fe", // Turquoise
             Mood::Negative => "#ff0844", // Red
@@ -59,9 +48,9 @@ pub fn analyze_commit(
 
     // 1. Check for Negative / Stress Keywords (High Priority)
     let negative_keywords = [
-        "fuck", "shit", "damn", "hate", "hell", "stuck", "broken", "fail", "error",
-        "wrong", "panic", "crash", "issue", "ugly", "mess", "bug", "wtf", "stupid",
-        "annoying", "rage", "die", "nonsense", "garbage", "trash", "crap",
+        "fuck", "shit", "damn", "hate", "hell", "stuck", "broken", "fail", "error", "wrong",
+        "panic", "crash", "issue", "ugly", "mess", "bug", "wtf", "stupid", "annoying", "rage",
+        "die", "nonsense", "garbage", "trash", "crap",
     ];
     for kw in &negative_keywords {
         if lower_msg.contains(kw) {
@@ -77,7 +66,8 @@ pub fn analyze_commit(
         || lower_msg.contains("remove")
         || lower_msg.contains("delete");
 
-    let is_heavy_deletions = total_changes > 10 && (deletions as f64 / total_changes as f64) >= 0.70;
+    let is_heavy_deletions =
+        total_changes > 10 && (deletions as f64 / total_changes as f64) >= 0.70;
 
     if is_refactor_keyword || is_heavy_deletions {
         return Mood::Refactor;
@@ -90,9 +80,29 @@ pub fn analyze_commit(
 
     // 4. Check for Positive (Turquoise)
     let positive_keywords = [
-        "feat", "add", "improve", "perf", "docs", "love", "great", "awesome",
-        "easy", "solved", "fixed", "clean", "nice", "super", "happy", "resolve",
-        "success", "optimize", "cool", "proud", "perfect", "magic", "beautiful",
+        "feat",
+        "add",
+        "improve",
+        "perf",
+        "docs",
+        "love",
+        "great",
+        "awesome",
+        "easy",
+        "solved",
+        "fixed",
+        "clean",
+        "nice",
+        "super",
+        "happy",
+        "resolve",
+        "success",
+        "optimize",
+        "cool",
+        "proud",
+        "perfect",
+        "magic",
+        "beautiful",
     ];
     for kw in &positive_keywords {
         if lower_msg.contains(kw) {
@@ -110,11 +120,29 @@ mod tests {
 
     #[test]
     fn test_sentiment_analysis() {
-        assert_eq!(analyze_commit("feat: add login page", 100, 0, false), Mood::Positive);
-        assert_eq!(analyze_commit("fix: stupid crash on login", 2, 2, false), Mood::Negative);
-        assert_eq!(analyze_commit("refactor auth flows", 10, 50, false), Mood::Refactor);
-        assert_eq!(analyze_commit("clean up helper functions", 5, 20, false), Mood::Refactor);
-        assert_eq!(analyze_commit("change some config", 5, 0, true), Mood::Weekend);
-        assert_eq!(analyze_commit("chore: update readme", 1, 1, false), Mood::Neutral);
+        assert_eq!(
+            analyze_commit("feat: add login page", 100, 0, false),
+            Mood::Positive
+        );
+        assert_eq!(
+            analyze_commit("fix: stupid crash on login", 2, 2, false),
+            Mood::Negative
+        );
+        assert_eq!(
+            analyze_commit("refactor auth flows", 10, 50, false),
+            Mood::Refactor
+        );
+        assert_eq!(
+            analyze_commit("clean up helper functions", 5, 20, false),
+            Mood::Refactor
+        );
+        assert_eq!(
+            analyze_commit("change some config", 5, 0, true),
+            Mood::Weekend
+        );
+        assert_eq!(
+            analyze_commit("chore: update readme", 1, 1, false),
+            Mood::Neutral
+        );
     }
 }

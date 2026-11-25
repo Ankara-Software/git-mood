@@ -51,8 +51,7 @@ pub fn install_hook() -> Result<(), String> {
         exe_path_str
     );
 
-    fs::write(&hook_path, hook_content)
-        .map_err(|e| format!("Failed to write hook file: {}", e))?;
+    fs::write(&hook_path, hook_content).map_err(|e| format!("Failed to write hook file: {}", e))?;
 
     // Make the hook executable on Unix
     #[cfg(unix)]

@@ -6,7 +6,7 @@ const https = require('https');
 const { spawn } = require('child_process');
 
 const VERSION = '0.1.4';
-const REPO = 'anilcan-kara/git-mood';
+const REPO = 'Ankara-Software/git-mood';
 
 const platform = process.platform;
 const arch = process.arch;
